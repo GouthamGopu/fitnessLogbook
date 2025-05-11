@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fitness Logbook</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Fitness Logbook</h2>
+
+  <button class="btn" onclick="addEntry()">Add Exercise</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Exercise Name</th>
+        <th>Duration (mins)</th>
+        <th>Calories Burned</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="exercise-table-body">
+      <!-- Dynamic Rows -->
+    </tbody>
+  </table>
+  <div id="modal" class="modal">
+    <div class="back">
+      <div class="modal-content">
+        <span id="closeModal" class="close" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle">Add Exercise</h3>
+        <form id="exerciseForm">
+          <input type="text" id="exerciseName" placeholder="Exercise Name" required />
+          <input type="number" id="duration" placeholder="Duration" required />
+          <input type="number" id="calories" placeholder="Calories Burned" required />
+          <input type="date" id="date" required />
+          <p id="error-message" style="color: red; display: none; margin-bottom: 10px;"></p>
+          <button type="submit" class="save-btn">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
