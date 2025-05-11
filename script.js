@@ -107,12 +107,15 @@ function openModal(mode, id = null) {
   const modal = document.getElementById("modal");
   modal.style.display = "block";
   const submitBtn = document.querySelector(".save-btn");
+  const modelTitle = document.getElementById("modalTitle");
 
   if (mode === "Update") {
+    modelTitle.textContent="Update Exercise";
     submitBtn.textContent = "Save Changes";
     submitBtn.onclick = () => saveExercise(id);
     return;
   } else {
+    modelTitle.textContent="Add Exercise";
     document.getElementById("exerciseForm").reset();
     submitBtn.textContent = "Add Exercise";
     submitBtn.onclick = addExercise;
