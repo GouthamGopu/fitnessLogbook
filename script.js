@@ -76,6 +76,7 @@ function editExercise(id) {
 }
 
 function saveExercise(id) {
+  event.preventDefault();
   const exerciseName = document.getElementById("exerciseName").value;
   const duration = document.getElementById("duration").value;
   const caloriesBurned = document.getElementById("calories").value;
@@ -113,7 +114,6 @@ function openModal(mode, id = null) {
     modelTitle.textContent="Update Exercise";
     submitBtn.textContent = "Save Changes";
     submitBtn.onclick = () => saveExercise(id);
-    return;
   } else {
     modelTitle.textContent="Add Exercise";
     document.getElementById("exerciseForm").reset();
