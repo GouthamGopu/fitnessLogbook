@@ -1,15 +1,16 @@
 const apiUrl = "https://6820501a72e59f922ef84ab4.mockapi.io/fitness";
 
 function fetchExercises() {
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", apiUrl, true);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      const data = JSON.parse(xhr.responseText);
       const tableBody = document.getElementById("exercise-table-body");
       tableBody.innerHTML = "";
 
       data.forEach((exercise) => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
           <td>${exercise.exerciseName}</td>
           <td>${exercise.duration} mins</td>
@@ -20,102 +21,106 @@ function fetchExercises() {
             <button class="delete" onclick="deleteExercise('${exercise.id}')">Delete</button>
           </td>
         `;
-
         tableBody.appendChild(row);
       });
-    });
+    }
+  };
+  xhr.send();
 }
 
 function addExercise(event) {
   event.preventDefault();
-  const exerciseName = document.getElementById("exerciseName").value;
-  const duration = document.getElementById("duration").value;
-  const caloriesBurned = document.getElementById("calories").value;
-  const date = document.getElementById("date").value;
+  const exercise = {
+    exerciseName: document.getElementById("exerciseName").value,
+    duration: document.getElementById("duration").value,
+    caloriesBurned: document.getElementById("calories").value,
+    date: document.getElementById("date").value,
+  };
 
-  if (!exerciseName || !duration || !caloriesBurned || !date) {
+  if (!exercise.exerciseName || !exercise.duration || !exercise.caloriesBurned || !exercise.date) {
     showError("All fields are required.");
     return;
   }
 
-  const exercise = {
-    exerciseName,
-    duration,
-    caloriesBurned,
-    date,
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", apiUrl, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 201 || xhr.status === 200) {
+      closeModal();
+      fetchExercises();
+    }
   };
-
-  fetch(apiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(exercise),
-  }).then(() => {
-    closeModal();
-    fetchExercises();
-  });
+  xhr.send(JSON.stringify(exercise));
 }
 
 function deleteExercise(id) {
   if (confirm("Are you sure you want to delete this entry?")) {
-    fetch(`${apiUrl}/${id}`, {
-      method: "DELETE",
-    }).then(() => fetchExercises());
+    const xhr = new XMLHttpRequest();
+    xhr.open("DELETE", `${apiUrl}/${id}`, true);
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        fetchExercises();
+      }
+    };
+    xhr.send();
   }
 }
 
 function editExercise(id) {
-  fetch(`${apiUrl}/${id}`)
-    .then(response => response.json())
-    .then(data => {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${apiUrl}/${id}`, true);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      const data = JSON.parse(xhr.responseText);
       openModal("Update", id);
       document.getElementById("exerciseName").value = data.exerciseName;
       document.getElementById("duration").value = data.duration;
       document.getElementById("calories").value = data.caloriesBurned;
       document.getElementById("date").value = data.date;
-    });
+    }
+  };
+  xhr.send();
 }
 
 function saveExercise(id) {
   event.preventDefault();
-  const exerciseName = document.getElementById("exerciseName").value;
-  const duration = document.getElementById("duration").value;
-  const caloriesBurned = document.getElementById("calories").value;
-  const date = document.getElementById("date").value;
+  const updated = {
+    exerciseName: document.getElementById("exerciseName").value,
+    duration: document.getElementById("duration").value,
+    caloriesBurned: document.getElementById("calories").value,
+    date: document.getElementById("date").value,
+  };
 
-  if (!exerciseName || !duration || !caloriesBurned || !date) {
+  if (!updated.exerciseName || !updated.duration || !updated.caloriesBurned || !updated.date) {
     showError("All fields are required.");
     return;
   }
 
-  const updated = {
-    exerciseName,
-    duration,
-    caloriesBurned,
-    date,
+  const xhr = new XMLHttpRequest();
+  xhr.open("PUT", `${apiUrl}/${id}`, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      closeModal();
+      fetchExercises();
+    }
   };
-
-  fetch(`${apiUrl}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated),
-  }).then(() => {
-    closeModal();
-    fetchExercises();
-  });
+  xhr.send(JSON.stringify(updated));
 }
 
 function openModal(mode, id = null) {
   const modal = document.getElementById("modal");
   modal.style.display = "block";
   const submitBtn = document.querySelector(".save-btn");
-  const modelTitle = document.getElementById("modalTitle");
+  const modalTitle = document.getElementById("modalTitle");
 
   if (mode === "Update") {
-    modelTitle.textContent="Update Exercise";
+    modalTitle.textContent = "Update Exercise";
     submitBtn.textContent = "Save Changes";
     submitBtn.onclick = () => saveExercise(id);
   } else {
-    modelTitle.textContent="Add Exercise";
+    modalTitle.textContent = "Add Exercise";
     document.getElementById("exerciseForm").reset();
     submitBtn.textContent = "Add Exercise";
     submitBtn.onclick = addExercise;
@@ -125,8 +130,6 @@ function openModal(mode, id = null) {
 function addEntry() {
   openModal("Add");
 }
-
-document.getElementById("modal").style.display = "none";
 
 function closeModal() {
   document.getElementById("modal").style.display = "none";
@@ -140,5 +143,5 @@ function showError(message) {
     errorElement.style.display = "none";
   }, 5000);
 }
- 
+
 window.onload = fetchExercises;
